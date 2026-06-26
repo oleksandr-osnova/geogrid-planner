@@ -79,7 +79,7 @@ async function changeLocale (value: AppLocale): Promise<void> {
             <select v-model="lengthUnitModel"
                     class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
               <option v-for="option in LENGTH_UNIT_OPTIONS" :key="option.value" :value="option.value">
-                {{ option.label }}
+                {{ t(option.labelKey) }}
               </option>
             </select>
           </label>

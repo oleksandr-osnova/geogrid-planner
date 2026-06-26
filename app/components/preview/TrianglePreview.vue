@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { Point } from '~/shared/geometry/core/point';
 
 const props = defineProps<{
@@ -21,15 +22,14 @@ const previewPadding = computed(() => {
   const width = maxX.value - minX.value;
   const height = maxY.value - minY.value;
 
-  return Math.max(Math.max(width, height) * 0.08, 120);
+  return Math.max(width, height) * 0.08;
 });
 
 const viewBox = computed(() => {
-  const padding = previewPadding.value;
-  const width = maxX.value - minX.value + padding * 2;
-  const height = maxY.value - minY.value + padding * 2;
+  const width = maxX.value - minX.value + previewPadding.value * 2;
+  const height = maxY.value - minY.value + previewPadding.value * 2;
 
-  return `${ minX.value - padding } ${ -maxY.value - padding } ${ width } ${ height }`;
+  return `${ minX.value - previewPadding.value } ${ -maxY.value - previewPadding.value } ${ width } ${ height }`;
 });
 
 const polygonPoints = computed(() => {
@@ -44,12 +44,12 @@ const polygonPoints = computed(() => {
 </script>
 
 <template>
-  <svg :viewBox="viewBox" class="mt-6 h-96 w-full overflow-visible rounded border bg-white">
+  <svg :viewBox="viewBox" class="mt-6 h-96 w-full rounded border bg-white" preserveAspectRatio="xMidYMid meet">
     <polygon
       :points="polygonPoints"
       fill="rgba(59, 130, 246, 0.08)"
       stroke="rgb(37, 99, 235)"
-      stroke-width="8"
+      stroke-width="6"
       vector-effect="non-scaling-stroke"
     />
   </svg>

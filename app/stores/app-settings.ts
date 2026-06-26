@@ -6,21 +6,27 @@ export type LengthUnit = 'mm' | 'cm' | 'm';
 
 export interface LengthUnitOption {
   value: LengthUnit;
-  factorFromMillimeters: number;
+  labelKey: string;
+  symbolKey: string;
 }
 
-export const LENGTH_UNIT_OPTIONS: LengthUnitOption[] = [
-  {
-    value: 'mm',
-    factorFromMillimeters: 1,
-  },
+export const DEFAULT_LENGTH_UNIT_OPTION: LengthUnitOption = {
+  value: 'mm',
+  labelKey: 'settings.units.mm',
+  symbolKey: 'settings.unitSymbols.mm',
+};
+
+export const LENGTH_UNIT_OPTIONS: readonly LengthUnitOption[] = [
+  DEFAULT_LENGTH_UNIT_OPTION,
   {
     value: 'cm',
-    factorFromMillimeters: 0.1,
+    labelKey: 'settings.units.cm',
+    symbolKey: 'settings.unitSymbols.cm',
   },
   {
     value: 'm',
-    factorFromMillimeters: 0.001,
+    labelKey: 'settings.units.m',
+    symbolKey: 'settings.unitSymbols.m',
   },
 ];
 
@@ -29,8 +35,9 @@ export const DECIMAL_PRECISION_OPTIONS = [0, 1, 2, 3, 4];
 /**
  * Stores global UI settings shared by calculators and layout controls.
  *
- * Geometry calculations use millimeters internally. The selected unit is a
- * global input/output preference and should be converted at the UI boundary.
+ * The selected unit is treated as the active unit for both user input and
+ * calculation output. Values are not converted when the unit changes: the same
+ * numeric input is simply interpreted in the newly selected unit.
  */
 export const useAppSettingsStore = defineStore('app-settings', () => {
   const locale = ref<AppLocale>('uk');
@@ -38,7 +45,7 @@ export const useAppSettingsStore = defineStore('app-settings', () => {
   const decimalPrecision = ref(2);
 
   const lengthUnitOption = computed(() => {
-    return LENGTH_UNIT_OPTIONS.find((option) => option.value === lengthUnit.value) ?? LENGTH_UNIT_OPTIONS[0];
+    return LENGTH_UNIT_OPTIONS.find((option) => option.value === lengthUnit.value) ?? DEFAULT_LENGTH_UNIT_OPTION;
   });
 
   function setLocale(value: AppLocale): void {
@@ -54,45 +61,10 @@ export const useAppSettingsStore = defineStore('app-settings', () => {
   }
 
   /**
-   * Converts a length from the currently selected unit to millimeters.
-   */
-  function toMillimeters(value: number): number {
-    return value / lengthUnitOption.value.factorFromMillimeters;
-  }
-
-  /**
-   * Converts a length from millimeters to the currently selected display unit.
-   */
-  function fromMillimeters(value: number): number {
-    return value * lengthUnitOption.value.factorFromMillimeters;
-  }
-
-  /**
-   * Converts an area from square millimeters to the currently selected squared unit.
-   */
-  function areaFromSquareMillimeters(value: number): number {
-    return value * lengthUnitOption.value.factorFromMillimeters ** 2;
-  }
-
-  /**
-   * Formats a number using global decimal precision settings.
+   * Formats a numeric metric value using the global decimal precision.
    */
   function formatNumber(value: number): string {
     return value.toFixed(decimalPrecision.value);
-  }
-
-  /**
-   * Formats a length value stored in millimeters using global precision settings.
-   */
-  function formatLength(value: number, unitLabel = lengthUnit.value): string {
-    return `${formatNumber(fromMillimeters(value))} ${unitLabel}`;
-  }
-
-  /**
-   * Formats an area value stored in square millimeters using global precision settings.
-   */
-  function formatArea(value: number, unitLabel = lengthUnit.value): string {
-    return `${formatNumber(areaFromSquareMillimeters(value))} ${unitLabel}²`;
   }
 
   return {
@@ -103,11 +75,6 @@ export const useAppSettingsStore = defineStore('app-settings', () => {
     setLocale,
     setLengthUnit,
     setDecimalPrecision,
-    toMillimeters,
-    fromMillimeters,
-    areaFromSquareMillimeters,
     formatNumber,
-    formatLength,
-    formatArea,
   };
 });

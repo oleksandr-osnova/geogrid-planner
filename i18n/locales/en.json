@@ -33,7 +33,17 @@
   "settings": {
     "language": "Language",
     "precision": "Precision",
-    "unit": "Units"
+    "unit": "Units",
+    "units": {
+      "mm": "Millimeters (mm)",
+      "cm": "Centimeters (cm)",
+      "m": "Meters (m)"
+    },
+    "unitSymbols": {
+      "mm": "mm",
+      "cm": "cm",
+      "m": "m"
+    }
   },
   "triangle": {
     "description": "This is the first basic stage: resolve a triangle by three sides and show the first metrics.",

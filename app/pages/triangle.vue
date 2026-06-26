@@ -13,6 +13,22 @@ const form = reactive({
   ca: 2200,
 });
 
+const lengthUnitSymbol = computed(() => t(appSettings.lengthUnitOption.symbolKey));
+
+/**
+ * Formats a length in the active global unit without converting the value.
+ */
+function formatLength (value: number): string {
+  return `${ appSettings.formatNumber(value) } ${ lengthUnitSymbol.value }`;
+}
+
+/**
+ * Formats an area in the squared active global unit without converting the value.
+ */
+function formatArea (value: number): string {
+  return `${ appSettings.formatNumber(value) } ${ lengthUnitSymbol.value }²`;
+}
+
 const result = computed(() => {
   try {
     return calculateTriangle({
@@ -45,19 +61,19 @@ const result = computed(() => {
 
       <div class="grid gap-4 md:grid-cols-3">
         <label class="block">
-          <span class="mb-1 block text-sm font-medium text-slate-700">AB, mm</span>
+          <span class="mb-1 block text-sm font-medium text-slate-700">AB, {{ lengthUnitSymbol }}</span>
           <input v-model.number="form.ab" type="number"
                  class="w-full rounded-xl border border-slate-200 p-3 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
         </label>
 
         <label class="block">
-          <span class="mb-1 block text-sm font-medium text-slate-700">BC, mm</span>
+          <span class="mb-1 block text-sm font-medium text-slate-700">BC, {{ lengthUnitSymbol }}</span>
           <input v-model.number="form.bc" type="number"
                  class="w-full rounded-xl border border-slate-200 p-3 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
         </label>
 
         <label class="block">
-          <span class="mb-1 block text-sm font-medium text-slate-700">CA, mm</span>
+          <span class="mb-1 block text-sm font-medium text-slate-700">CA, {{ lengthUnitSymbol }}</span>
           <input v-model.number="form.ca" type="number"
                  class="w-full rounded-xl border border-slate-200 p-3 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
         </label>
@@ -81,7 +97,7 @@ const result = computed(() => {
             {{ t('results.area') }}
           </dt>
           <dd class="mt-1 text-xl font-semibold text-slate-950">
-            {{ appSettings.formatArea(result.area) }}
+            {{ formatArea(result.area) }}
           </dd>
         </div>
 
@@ -90,7 +106,7 @@ const result = computed(() => {
             {{ t('results.perimeter') }}
           </dt>
           <dd class="mt-1 text-xl font-semibold text-slate-950">
-            {{ appSettings.formatLength(result.perimeter) }}
+            {{ formatLength(result.perimeter) }}
           </dd>
         </div>
       </dl>
