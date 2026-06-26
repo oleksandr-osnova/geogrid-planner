@@ -8,9 +8,9 @@ const { t } = useI18n();
 const appSettings = useAppSettingsStore();
 
 const form = reactive({
-  ab: 3000,
-  bc: 2600,
-  ca: 2200,
+  ab: 30,
+  bc: 26,
+  ca: 22,
 });
 
 const lengthUnitSymbol = computed(() => t(appSettings.lengthUnitOption.symbolKey));
@@ -18,15 +18,15 @@ const lengthUnitSymbol = computed(() => t(appSettings.lengthUnitOption.symbolKey
 /**
  * Formats a length in the active global unit without converting the value.
  */
-function formatLength (value: number): string {
-  return `${ appSettings.formatNumber(value) } ${ lengthUnitSymbol.value }`;
+function formatLength(value: number): string {
+  return `${appSettings.formatNumber(value)} ${lengthUnitSymbol.value}`;
 }
 
 /**
  * Formats an area in the squared active global unit without converting the value.
  */
-function formatArea (value: number): string {
-  return `${ appSettings.formatNumber(value) } ${ lengthUnitSymbol.value }²`;
+function formatArea(value: number): string {
+  return `${appSettings.formatNumber(value)} ${lengthUnitSymbol.value}²`;
 }
 
 const result = computed(() => {
@@ -61,25 +61,40 @@ const result = computed(() => {
 
       <div class="grid gap-4 md:grid-cols-3">
         <label class="block">
-          <span class="mb-1 block text-sm font-medium text-slate-700">AB, {{ lengthUnitSymbol }}</span>
-          <input v-model.number="form.ab" type="number"
-                 class="w-full rounded-xl border border-slate-200 p-3 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
+          <span class="mb-1 block text-sm font-medium text-slate-700"
+            >AB, {{ lengthUnitSymbol }}</span
+          >
+          <input
+            v-model.number="form.ab"
+            type="number"
+            class="w-full rounded-xl border border-slate-200 p-3 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+          />
         </label>
 
         <label class="block">
-          <span class="mb-1 block text-sm font-medium text-slate-700">BC, {{ lengthUnitSymbol }}</span>
-          <input v-model.number="form.bc" type="number"
-                 class="w-full rounded-xl border border-slate-200 p-3 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
+          <span class="mb-1 block text-sm font-medium text-slate-700"
+            >BC, {{ lengthUnitSymbol }}</span
+          >
+          <input
+            v-model.number="form.bc"
+            type="number"
+            class="w-full rounded-xl border border-slate-200 p-3 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+          />
         </label>
 
         <label class="block">
-          <span class="mb-1 block text-sm font-medium text-slate-700">CA, {{ lengthUnitSymbol }}</span>
-          <input v-model.number="form.ca" type="number"
-                 class="w-full rounded-xl border border-slate-200 p-3 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
+          <span class="mb-1 block text-sm font-medium text-slate-700"
+            >CA, {{ lengthUnitSymbol }}</span
+          >
+          <input
+            v-model.number="form.ca"
+            type="number"
+            class="w-full rounded-xl border border-slate-200 p-3 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+          />
         </label>
       </div>
 
-      <TrianglePreview v-if="result" :points="result.resolvedTriangle.points"/>
+      <TrianglePreview v-if="result" :points="result.resolvedTriangle.points" />
 
       <div v-else class="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
         {{ t('triangle.invalid') }}

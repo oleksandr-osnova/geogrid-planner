@@ -11,9 +11,9 @@ export interface LengthUnitOption {
 }
 
 export const DEFAULT_LENGTH_UNIT_OPTION: LengthUnitOption = {
-  value: 'mm',
-  labelKey: 'settings.units.mm',
-  symbolKey: 'settings.unitSymbols.mm',
+  value: 'm',
+  labelKey: 'settings.units.m',
+  symbolKey: 'settings.unitSymbols.m',
 };
 
 export const LENGTH_UNIT_OPTIONS: readonly LengthUnitOption[] = [
@@ -24,9 +24,9 @@ export const LENGTH_UNIT_OPTIONS: readonly LengthUnitOption[] = [
     symbolKey: 'settings.unitSymbols.cm',
   },
   {
-    value: 'm',
-    labelKey: 'settings.units.m',
-    symbolKey: 'settings.unitSymbols.m',
+    value: 'mm',
+    labelKey: 'settings.units.mm',
+    symbolKey: 'settings.unitSymbols.mm',
   },
 ];
 
@@ -41,11 +41,14 @@ export const DECIMAL_PRECISION_OPTIONS = [0, 1, 2, 3, 4];
  */
 export const useAppSettingsStore = defineStore('app-settings', () => {
   const locale = ref<AppLocale>('uk');
-  const lengthUnit = ref<LengthUnit>('mm');
+  const lengthUnit = ref<LengthUnit>('m');
   const decimalPrecision = ref(2);
 
   const lengthUnitOption = computed(() => {
-    return LENGTH_UNIT_OPTIONS.find((option) => option.value === lengthUnit.value) ?? DEFAULT_LENGTH_UNIT_OPTION;
+    return (
+      LENGTH_UNIT_OPTIONS.find((option) => option.value === lengthUnit.value) ??
+      DEFAULT_LENGTH_UNIT_OPTION
+    );
   });
 
   function setLocale(value: AppLocale): void {
