@@ -9,9 +9,7 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: 'uk',
       },
-      link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-      ],
+      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
     },
@@ -19,11 +17,7 @@ export default defineNuxtConfig({
 
   css: ['normalize.css/normalize.css'],
 
-  modules: [
-    '@nuxtjs/tailwindcss',
-    '@pinia/nuxt',
-    '@nuxtjs/i18n',
-  ],
+  modules: ['@nuxt/eslint', '@nuxtjs/tailwindcss', '@pinia/nuxt', '@nuxtjs/i18n'],
 
   i18n: {
     defaultLocale: 'uk',
@@ -43,4 +37,4 @@ export default defineNuxtConfig({
       },
     ],
   },
-})
+});
