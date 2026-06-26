@@ -1,0 +1,43 @@
+{
+  "app": {
+    "title": "GeoGrid Planner",
+    "subtitle": "Geometry and grid calculator for 2D shapes"
+  },
+  "common": {
+    "soon": "soon"
+  },
+  "home": {
+    "badge": "Geometry planner",
+    "title": "Calculate shapes, grids, intersections, and derived metrics.",
+    "description": "The project is structured to gradually add new shapes, metrics, and visualization modes without rewriting the whole calculation flow.",
+    "triangleDescription": "First stable scenario: triangle sides, area, perimeter, and SVG preview.",
+    "trapezoidDescription": "Planned next scenario for bases, side lengths, grid lines, and intersections."
+  },
+  "layout": {
+    "header": {
+      "navigation": "Main navigation"
+    },
+    "footer": {
+      "disclaimer": "Calculations may include rounding errors or depend on the entered data. For important engineering decisions, verify the results independently."
+    }
+  },
+  "navigation": {
+    "triangle": "Triangle",
+    "trapezoid": "Trapezoid"
+  },
+  "results": {
+    "title": "Result",
+    "area": "Area",
+    "perimeter": "Perimeter"
+  },
+  "settings": {
+    "language": "Language",
+    "precision": "Precision",
+    "unit": "Units"
+  },
+  "triangle": {
+    "description": "This is the first basic stage: resolve a triangle by three sides and show the first metrics.",
+    "invalid": "A triangle cannot be built from these side lengths.",
+    "title": "Triangle calculator"
+  }
+}

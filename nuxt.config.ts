@@ -5,7 +5,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'Geogrid Planner',
+      title: 'GeoGrid Planner',
       htmlAttrs: {
         lang: 'uk',
       },
@@ -18,5 +18,29 @@ export default defineNuxtConfig({
   },
 
   css: ['normalize.css/normalize.css'],
-  modules: ['@nuxtjs/tailwindcss'],
+
+  modules: [
+    '@nuxtjs/tailwindcss',
+    '@pinia/nuxt',
+    '@nuxtjs/i18n',
+  ],
+
+  i18n: {
+    defaultLocale: 'uk',
+    langDir: 'locales',
+    strategy: 'no_prefix',
+    detectBrowserLanguage: false,
+    locales: [
+      {
+        code: 'uk',
+        name: 'Українська',
+        file: 'uk.json',
+      },
+      {
+        code: 'en',
+        name: 'English',
+        file: 'en.json',
+      },
+    ],
+  },
 })

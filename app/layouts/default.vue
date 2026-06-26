@@ -1,24 +1,17 @@
 <script setup lang="ts">
-
-import LayoutAppHeader from "~/components/layout/LayoutAppHeader.vue";
-import LayoutAppFooter from "~/components/layout/LayoutAppFooter.vue";
-import LayoutAppMain from "~/components/layout/LayoutAppMain.vue";
+import LayoutAppFooter from '~/components/layout/LayoutAppFooter.vue';
+import LayoutAppHeader from '~/components/layout/LayoutAppHeader.vue';
+import LayoutAppMain from '~/components/layout/LayoutAppMain.vue';
 </script>
 
 <template>
-  <div class="layout">
-    <LayoutAppHeader />
+  <div class="flex min-h-screen flex-col bg-slate-50 text-slate-950 antialiased">
+    <LayoutAppHeader/>
+
     <LayoutAppMain>
-      <slot />
+      <slot/>
     </LayoutAppMain>
-    <LayoutAppFooter />
+
+    <LayoutAppFooter/>
   </div>
 </template>
-
-<style scoped>
-.layout {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-</style>

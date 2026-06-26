@@ -1,14 +1,10 @@
 <script setup lang="ts">
-
 </script>
 
 <template>
-  <main class="p-2"><slot /></main>
+  <main class="flex-1">
+    <div class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <slot/>
+    </div>
+  </main>
 </template>
-
-<style scoped>
-main {
-  flex: 2 2 auto;
-  background-color: yellow;
-}
-</style>
