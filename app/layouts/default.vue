@@ -5,13 +5,13 @@ import LayoutAppMain from '~/components/layout/LayoutAppMain.vue';
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col bg-slate-50 text-slate-950 antialiased">
-    <LayoutAppHeader/>
+  <div class="flex h-[100dvh] flex-col overflow-hidden bg-slate-50 text-slate-950 antialiased">
+    <LayoutAppHeader />
 
     <LayoutAppMain>
-      <slot/>
+      <slot />
     </LayoutAppMain>
 
-    <LayoutAppFooter/>
+    <LayoutAppFooter />
   </div>
 </template>

@@ -1,10 +1,9 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <main class="flex-1">
+  <main class="min-h-0 flex-1 overflow-y-auto">
     <div class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      <slot/>
+      <slot />
     </div>
   </main>
 </template>

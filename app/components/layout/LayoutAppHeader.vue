@@ -21,7 +21,7 @@ const decimalPrecisionModel = computed({
   set: (value: number) => appSettings.setDecimalPrecision(Number(value)),
 });
 
-async function changeLocale (value: AppLocale): Promise<void> {
+async function changeLocale(value: AppLocale): Promise<void> {
   appSettings.setLocale(value);
   await setLocale(value);
 
@@ -32,9 +32,10 @@ async function changeLocale (value: AppLocale): Promise<void> {
 </script>
 
 <template>
-  <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
+  <header class="z-40 shrink-0 border-b border-slate-200 bg-white">
     <div
-      class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+      class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
+    >
       <div class="flex flex-col gap-1">
         <NuxtLink to="/" class="text-xl font-bold tracking-tight text-slate-950">
           {{ t('app.title') }}
@@ -56,7 +57,8 @@ async function changeLocale (value: AppLocale): Promise<void> {
           </NuxtLink>
 
           <span
-            class="cursor-not-allowed rounded-full border border-dashed border-slate-200 px-4 py-2 text-sm font-medium text-slate-400">
+            class="cursor-not-allowed rounded-full border border-dashed border-slate-200 px-4 py-2 text-sm font-medium text-slate-400"
+          >
             {{ t('navigation.trapezoid') }} · {{ t('common.soon') }}
           </span>
         </nav>
@@ -76,9 +78,15 @@ async function changeLocale (value: AppLocale): Promise<void> {
 
           <label class="flex flex-col gap-1 text-xs font-medium text-slate-500">
             {{ t('settings.unit') }}
-            <select v-model="lengthUnitModel"
-                    class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
-              <option v-for="option in LENGTH_UNIT_OPTIONS" :key="option.value" :value="option.value">
+            <select
+              v-model="lengthUnitModel"
+              class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+            >
+              <option
+                v-for="option in LENGTH_UNIT_OPTIONS"
+                :key="option.value"
+                :value="option.value"
+              >
                 {{ t(option.labelKey) }}
               </option>
             </select>
@@ -86,8 +94,10 @@ async function changeLocale (value: AppLocale): Promise<void> {
 
           <label class="flex flex-col gap-1 text-xs font-medium text-slate-500">
             {{ t('settings.precision') }}
-            <select v-model.number="decimalPrecisionModel"
-                    class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
+            <select
+              v-model.number="decimalPrecisionModel"
+              class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+            >
               <option v-for="option in DECIMAL_PRECISION_OPTIONS" :key="option" :value="option">
                 {{ option }}
               </option>
