@@ -15,10 +15,14 @@
   },
   "layout": {
     "header": {
-      "navigation": "Main navigation"
+      "navigation": "Main navigation",
+      "showControls": "Menu",
+      "hideControls": "Collapse"
     },
     "footer": {
-      "disclaimer": "Calculations may include rounding errors or depend on the entered data. For important engineering decisions, verify the results independently."
+      "disclaimer": "Calculations may include rounding errors or depend on the entered data. For important engineering decisions, verify the results independently.",
+      "showDisclaimer": "Disclaimer",
+      "hideDisclaimer": "Hide"
     }
   },
   "navigation": {
