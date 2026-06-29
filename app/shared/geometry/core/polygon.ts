@@ -31,7 +31,7 @@ export class Polygon {
 
   public get segments(): readonly Segment[] {
     return this.points.map((point, index) => {
-      const nextPoint = this.points[(index + 1) % this.points.length];
+      const nextPoint = this.getPointByCircularIndex(index + 1);
 
       return new Segment(point, nextPoint);
     });
@@ -108,11 +108,28 @@ export class Polygon {
    */
   private get signedArea(): number {
     const crossSum = this.points.reduce((sum, point, index) => {
-      const nextPoint = this.points[(index + 1) % this.points.length];
+      const nextPoint = this.getPointByCircularIndex(index + 1);
 
       return sum + point.x * nextPoint.y - nextPoint.x * point.y;
     }, 0);
 
     return crossSum / 2;
+  }
+
+  /**
+   * Returns a polygon point by index and wraps the index around the point list.
+   *
+   * Text explanation: polygon sides go from each point to the next one, and the last point connects
+   * back to the first point. TypeScript cannot always prove that modulo indexing returns a point, so
+   * this helper keeps that rule explicit and avoids passing a possible undefined value to Segment.
+   */
+  private getPointByCircularIndex(index: number): Point {
+    const point = this.points[index % this.points.length];
+
+    if (!point) {
+      throw new Error('Polygon point index is outside of polygon points.');
+    }
+
+    return point;
   }
 }

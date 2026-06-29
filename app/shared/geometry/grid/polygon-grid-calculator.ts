@@ -46,7 +46,6 @@ export class PolygonGridCalculator {
     const { innerIntersections, excludedInnerIntersections } = this.buildInnerIntersections(
       parallelResult.gridSegments,
       perpendicularResult.gridSegments,
-      sideIntersections,
       settings.minDistanceFromSideIntersection,
     );
     const parallelLength = this.sumSegments(parallelResult.gridSegments);
@@ -76,7 +75,7 @@ export class PolygonGridCalculator {
     const { maxY } = polygon.bounds;
 
     for (let y = step; y < maxY - EPSILON; y += step) {
-      this.addClippedLineResult(result, 'parallel', y, this.clipHorizontalLine(polygon, y));
+      this.addClippedLineResult(result, 'parallel', y, this.clipHorizontalLine(polygon, y), step);
     }
 
     return result;
@@ -95,27 +94,45 @@ export class PolygonGridCalculator {
     const startX = Math.ceil((minX + EPSILON) / step) * step;
 
     for (let x = startX; x < maxX - EPSILON; x += step) {
-      this.addClippedLineResult(result, 'perpendicular', x, this.clipVerticalLine(polygon, x));
+      this.addClippedLineResult(
+        result,
+        'perpendicular',
+        x,
+        this.clipVerticalLine(polygon, x),
+        step,
+      );
     }
 
     return result;
   }
 
+  /**
+   * Adds clipped grid segments to the calculation result and skips pieces shorter than the grid step.
+   *
+   * Text explanation: after clipping by a triangle/trapezoid, a grid line can leave a tiny edge
+   * piece near a side or near the top vertex. Such a piece is shorter than one grid cell and does
+   * not create a normal rectangular grid interval, so we treat it as if this grid line does not
+   * exist in this place. Because it is skipped here, it is not rendered, not included in length
+   * totals, and its side endpoints are not counted as red side intersections.
+   */
   private addClippedLineResult(
     result: LineClipResult,
     direction: GridLineDirection,
     lineCoordinate: number,
     clippedSegments: Segment[],
+    step: number,
   ): void {
-    clippedSegments.forEach((segment) => {
-      result.gridSegments.push({
-        direction,
-        lineCoordinate,
-        segment,
+    clippedSegments
+      .filter((segment) => this.isLongEnoughGridSegment(segment, step))
+      .forEach((segment) => {
+        result.gridSegments.push({
+          direction,
+          lineCoordinate,
+          segment,
+        });
+        result.sideIntersections.push({ point: segment.start, direction, lineCoordinate });
+        result.sideIntersections.push({ point: segment.end, direction, lineCoordinate });
       });
-      result.sideIntersections.push({ point: segment.start, direction, lineCoordinate });
-      result.sideIntersections.push({ point: segment.end, direction, lineCoordinate });
-    });
   }
 
   /**
@@ -184,7 +201,14 @@ export class PolygonGridCalculator {
     const segments: Segment[] = [];
 
     for (let index = 0; index + 1 < points.length; index += 2) {
-      const segment = new Segment(points[index], points[index + 1]);
+      const startPoint = points[index];
+      const endPoint = points[index + 1];
+
+      if (!startPoint || !endPoint) {
+        continue;
+      }
+
+      const segment = new Segment(startPoint, endPoint);
 
       if (segment.length > EPSILON) {
         segments.push(segment);
@@ -204,7 +228,6 @@ export class PolygonGridCalculator {
   private buildInnerIntersections(
     parallelSegments: readonly GridSegment[],
     perpendicularSegments: readonly GridSegment[],
-    sideIntersections: readonly SideGridIntersection[],
     minDistanceFromSideIntersection: number,
   ): Pick<PolygonGridCalculationResult, 'innerIntersections' | 'excludedInnerIntersections'> {
     const innerIntersections: InnerGridIntersection[] = [];
@@ -218,15 +241,16 @@ export class PolygonGridCalculator {
           return;
         }
 
-        const nearestSideDistance = this.findNearestSideDistanceOnSameGridLine(
+        const distanceInfo = this.findNearestSideDistanceOnCrossingGridSegments(
           point,
-          sideIntersections,
+          parallelSegment,
+          perpendicularSegment,
         );
-        const intersection = { point, nearestSideDistance };
+        const intersection = { point, ...distanceInfo };
 
         if (
-          nearestSideDistance !== null &&
-          nearestSideDistance < minDistanceFromSideIntersection - EPSILON
+          distanceInfo.nearestSideDistance !== null &&
+          distanceInfo.nearestSideDistance < minDistanceFromSideIntersection - EPSILON
         ) {
           excludedInnerIntersections.push(intersection);
 
@@ -264,31 +288,61 @@ export class PolygonGridCalculator {
   }
 
   /**
-   * Finds the nearest red side point on the same horizontal or vertical grid line.
+   * Finds distances from one orange point to red endpoints of its own grid segments.
    *
-   * This intentionally does not use a diagonal 2D distance to any red point. The engineering rule is
-   * about excluding an orange point that is too close to a side along its own grid line, so only red
-   * points with the same X or the same Y are considered.
+   * Text explanation: an orange point is created by one horizontal and one vertical segment crossing
+   * each other. It is still one point, not two duplicated points. For the edge-distance rule we look
+   * only at the four red endpoints of those two actual segments: left/right on the horizontal line
+   * and bottom/top on the vertical line. Then we use the smallest of those distances.
+   *
+   * This intentionally avoids a generic diagonal distance to the nearest polygon side: the user rule
+   * is about being too close to the edge along a grid line, not about the shortest geometric distance
+   * to a slanted side.
    */
-  private findNearestSideDistanceOnSameGridLine(
+  private findNearestSideDistanceOnCrossingGridSegments(
     point: Point,
-    sideIntersections: readonly SideGridIntersection[],
-  ): number | null {
-    const distances = sideIntersections
-      .filter((intersection) => {
-        return (
-          this.areClose(intersection.point.x, point.x) ||
-          this.areClose(intersection.point.y, point.y)
-        );
-      })
-      .map((intersection) => point.distanceTo(intersection.point))
+    parallelSegment: GridSegment,
+    perpendicularSegment: GridSegment,
+  ): Pick<
+    InnerGridIntersection,
+    'nearestSideDistance' | 'nearestParallelSideDistance' | 'nearestPerpendicularSideDistance'
+  > {
+    const nearestParallelSideDistance = this.findNearestPositiveDistance(point, [
+      parallelSegment.segment.start,
+      parallelSegment.segment.end,
+    ]);
+    const nearestPerpendicularSideDistance = this.findNearestPositiveDistance(point, [
+      perpendicularSegment.segment.start,
+      perpendicularSegment.segment.end,
+    ]);
+    const nearestSideDistance = this.minNullable([
+      nearestParallelSideDistance,
+      nearestPerpendicularSideDistance,
+    ]);
+
+    return {
+      nearestSideDistance,
+      nearestParallelSideDistance,
+      nearestPerpendicularSideDistance,
+    };
+  }
+
+  private findNearestPositiveDistance(point: Point, targets: readonly Point[]): number | null {
+    const distances = targets
+      .map((target) => point.distanceTo(target))
       .filter((distance) => distance > EPSILON);
 
-    if (distances.length === 0) {
+    return this.minNullable(distances);
+  }
+
+  private minNullable(values: readonly (number | null)[]): number | null {
+    const numbers = values.filter((value): value is number => value !== null);
+
+    if (numbers.length === 0) {
       return null;
     }
 
-    return Math.min(...distances);
+    return Math.min(...numbers);
   }
 
   private uniqueSideIntersections(
@@ -311,6 +365,18 @@ export class PolygonGridCalculator {
     return points.filter((point, index, list) => {
       return list.findIndex((item) => this.areSamePoints(item, point)) === index;
     });
+  }
+
+  /**
+   * Checks whether a clipped grid piece can represent at least one full grid interval.
+   *
+   * Text explanation: if the grid step is 5 m, a 2 m piece near the edge is not useful as a grid
+   * line. It cannot contain the distance between two neighboring grid lines, so we exclude it from
+   * both drawing and calculation. The small EPSILON compensation avoids dropping a segment that is
+   * mathematically equal to the step but differs by a tiny floating point rounding error.
+   */
+  private isLongEnoughGridSegment(segment: Segment, step: number): boolean {
+    return segment.length + EPSILON >= step;
   }
 
   private sumSegments(gridSegments: readonly GridSegment[]): number {
