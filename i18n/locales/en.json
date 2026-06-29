@@ -79,5 +79,10 @@
       "cd": "CD — top base",
       "da": "DA — left side"
     }
+  },
+  "preview": {
+    "openFullscreen": "Fullscreen",
+    "closeFullscreen": "Close",
+    "fullscreenTitle": "Full drawing preview"
   }
 }

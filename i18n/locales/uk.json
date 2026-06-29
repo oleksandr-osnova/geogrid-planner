@@ -79,5 +79,10 @@
       "cd": "CD — верхня основа",
       "da": "DA — ліва сторона"
     }
+  },
+  "preview": {
+    "openFullscreen": "На весь екран",
+    "closeFullscreen": "Закрити",
+    "fullscreenTitle": "Повний перегляд креслення"
   }
 }
