@@ -1,15 +1,19 @@
+const appBaseUrl = process.env.NUXT_APP_BASE_URL ?? '/';
+const normalizedAppBaseUrl = appBaseUrl.endsWith('/') ? appBaseUrl : `${appBaseUrl}/`;
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
   app: {
+    baseURL: normalizedAppBaseUrl,
     head: {
       title: 'GeoGrid Planner',
       htmlAttrs: {
         lang: 'uk',
       },
-      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+      link: [{ rel: 'icon', type: 'image/x-icon', href: `${normalizedAppBaseUrl}favicon.ico` }],
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
     },
