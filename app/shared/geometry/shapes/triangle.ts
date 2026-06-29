@@ -1,5 +1,11 @@
 import { Point, type PointCoordinates } from '~/shared/geometry/core/point';
+import { Polygon } from '~/shared/geometry/core/polygon';
+import type { PlacedPolygon } from '~/shared/geometry/core/placed-polygon';
 import { Segment } from '~/shared/geometry/core/segment';
+
+export const TRIANGLE_SIDE_KEYS = ['ab', 'bc', 'ca'] as const;
+
+export type TriangleSideKey = (typeof TRIANGLE_SIDE_KEYS)[number];
 
 export interface TriangleInput {
   ab: number;
@@ -19,8 +25,18 @@ export interface TriangleSegments {
   ca: Segment;
 }
 
+const TRIANGLE_SIDE_INDEX_MAP: Record<TriangleSideKey, number> = {
+  ab: 0,
+  bc: 1,
+  ca: 2,
+};
+
 /**
  * Triangle entity built from three points or from three side lengths.
+ *
+ * The class is intentionally responsible only for the triangle itself: points, sides, area,
+ * perimeter, and placement by a selected main side. Grid logic stays outside in a generic polygon
+ * calculator, so the same grid code can later serve trapezoids and other shapes.
  */
 export class Triangle {
   public readonly a: Point;
@@ -50,6 +66,10 @@ export class Triangle {
     /**
      * Finds point C by the law of cosines for a triangle placed on the AB axis.
      *
+     * Text explanation: side AB is placed horizontally first. Point C must be at distance CA from
+     * A and at distance BC from B. The law of cosines gives the X coordinate of C, and then the
+     * remaining part of CA becomes the height of the triangle.
+     *
      * @see https://en.wikipedia.org/wiki/Law_of_cosines
      */
     const x = (ca ** 2 + ab ** 2 - bc ** 2) / (2 * ab);
@@ -72,6 +92,14 @@ export class Triangle {
     };
   }
 
+  public get orderedPoints(): readonly Point[] {
+    return [this.a, this.b, this.c];
+  }
+
+  public get polygon(): Polygon {
+    return new Polygon(this.orderedPoints);
+  }
+
   public get sides(): TriangleSegments {
     return {
       ab: new Segment(this.a, this.b),
@@ -91,22 +119,27 @@ export class Triangle {
   }
 
   public get perimeter(): number {
-    const { ab, bc, ca } = this.sideLengths;
-
-    return ab + bc + ca;
+    return this.polygon.perimeter;
   }
 
   /**
-   * Calculates triangle area using Heron's formula.
+   * Calculates triangle area.
    *
-   * @see https://en.wikipedia.org/wiki/Heron%27s_formula
+   * Text explanation: the generic polygon area is used here, so triangle and trapezoid area are
+   * calculated through the same ordered-points approach. For a triangle this produces the same
+   * result as Heron's formula, but it avoids duplicated metric code.
    */
   public get area(): number {
-    const { ab, bc, ca } = this.sideLengths;
-    const semiPerimeter = this.perimeter / 2;
+    return this.polygon.area;
+  }
 
-    return Math.sqrt(
-      semiPerimeter * (semiPerimeter - ab) * (semiPerimeter - bc) * (semiPerimeter - ca),
-    );
+  /**
+   * Returns a polygon transformed so the selected side becomes the main horizontal side.
+   *
+   * This is the bridge between a domain shape and the grid calculator: after this method the grid
+   * calculator can use simple X/Y lines instead of knowing anything about triangle side names.
+   */
+  public placeBySide(sideKey: TriangleSideKey): PlacedPolygon {
+    return this.polygon.placeBySegmentIndex(TRIANGLE_SIDE_INDEX_MAP[sideKey], sideKey);
   }
 }

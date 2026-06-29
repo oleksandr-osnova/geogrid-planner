@@ -10,8 +10,8 @@
     "badge": "Geometry planner",
     "title": "Calculate shapes, grids, intersections, and derived metrics.",
     "description": "The project is structured to gradually add new shapes, metrics, and visualization modes without rewriting the whole calculation flow.",
-    "triangleDescription": "First stable scenario: triangle sides, area, perimeter, and SVG preview.",
-    "trapezoidDescription": "Planned next scenario for bases, side lengths, grid lines, and intersections."
+    "triangleDescription": "Triangle sides, main side, grid, intersections, area, and perimeter.",
+    "trapezoidDescription": "Four-side trapezoid, main side selection, grid lines, and intersections."
   },
   "layout": {
     "header": {
@@ -32,7 +32,12 @@
   "results": {
     "title": "Result",
     "area": "Area",
-    "perimeter": "Perimeter"
+    "perimeter": "Perimeter",
+    "gridLines": "Grid lines",
+    "gridLength": "Total grid length",
+    "sideIntersections": "Side intersections",
+    "innerIntersections": "Inner intersections",
+    "excludedInnerIntersections": "Excluded inner intersections"
   },
   "settings": {
     "language": "Language",
@@ -50,8 +55,29 @@
     }
   },
   "triangle": {
-    "description": "This is the first basic stage: resolve a triangle by three sides and show the first metrics.",
-    "invalid": "A triangle cannot be built from these side lengths.",
-    "title": "Triangle calculator"
+    "description": "Calculate a triangle by three sides with main side selection, grid building, and filtering intersections near sides.",
+    "invalid": "A triangle or grid cannot be built from these values.",
+    "title": "Triangle calculator",
+    "sides": {
+      "ab": "AB",
+      "bc": "BC",
+      "ca": "CA"
+    }
+  },
+  "geometry": {
+    "mainSide": "Main side",
+    "gridStep": "Grid step",
+    "minDistance": "Min. distance from side"
+  },
+  "trapezoid": {
+    "description": "Calculate a trapezoid by sides AB, BC, CD, DA. AB and CD are treated as parallel bases.",
+    "invalid": "A trapezoid or grid cannot be built from these values. Check sides and grid step.",
+    "title": "Trapezoid calculator",
+    "sides": {
+      "ab": "AB — bottom base",
+      "bc": "BC — right side",
+      "cd": "CD — top base",
+      "da": "DA — left side"
+    }
   }
 }

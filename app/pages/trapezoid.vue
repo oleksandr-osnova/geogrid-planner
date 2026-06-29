@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue';
 import GeometryGridPreview from '~/components/preview/GeometryGridPreview.vue';
-import { calculateTriangle } from '~/shared/geometry/calculators/calculate-triangle';
-import { TRIANGLE_SIDE_KEYS, type TriangleSideKey } from '~/shared/geometry/shapes/triangle';
+import { calculateTrapezoid } from '~/shared/geometry/calculators/calculate-trapezoid';
+import { TRAPEZOID_SIDE_KEYS, type TrapezoidSideKey } from '~/shared/geometry/shapes/trapezoid';
 import { useAppSettingsStore } from '~/stores/app-settings';
 
 const { t } = useI18n();
@@ -10,9 +10,10 @@ const appSettings = useAppSettingsStore();
 
 const form = reactive({
   ab: 30,
-  bc: 26,
-  ca: 22,
-  mainSideKey: 'ab' as TriangleSideKey,
+  bc: 15,
+  cd: 18,
+  da: 16,
+  mainSideKey: 'ab' as TrapezoidSideKey,
   gridStep: 5,
   minDistanceFromSideIntersection: 0.5,
 });
@@ -35,10 +36,11 @@ function formatArea(value: number): string {
 
 const result = computed(() => {
   try {
-    return calculateTriangle({
+    return calculateTrapezoid({
       ab: Number(form.ab),
       bc: Number(form.bc),
-      ca: Number(form.ca),
+      cd: Number(form.cd),
+      da: Number(form.da),
       mainSideKey: form.mainSideKey,
       gridStep: Number(form.gridStep),
       minDistanceFromSideIntersection: Number(form.minDistanceFromSideIntersection),
@@ -54,19 +56,19 @@ const result = computed(() => {
     <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
       <div class="mb-6">
         <p class="text-sm font-semibold uppercase tracking-wide text-blue-600">
-          {{ t('navigation.triangle') }}
+          {{ t('navigation.trapezoid') }}
         </p>
 
         <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-950">
-          {{ t('triangle.title') }}
+          {{ t('trapezoid.title') }}
         </h1>
 
         <p class="mt-2 text-sm leading-6 text-slate-600">
-          {{ t('triangle.description') }}
+          {{ t('trapezoid.description') }}
         </p>
       </div>
 
-      <div class="grid gap-4 md:grid-cols-3">
+      <div class="grid gap-4 md:grid-cols-4">
         <label class="block">
           <span class="mb-1 block text-sm font-medium text-slate-700"
             >AB, {{ lengthUnitSymbol }}</span
@@ -93,10 +95,22 @@ const result = computed(() => {
 
         <label class="block">
           <span class="mb-1 block text-sm font-medium text-slate-700"
-            >CA, {{ lengthUnitSymbol }}</span
+            >CD, {{ lengthUnitSymbol }}</span
           >
           <input
-            v-model.number="form.ca"
+            v-model.number="form.cd"
+            type="number"
+            min="0"
+            class="w-full rounded-xl border border-slate-200 p-3 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+          />
+        </label>
+
+        <label class="block">
+          <span class="mb-1 block text-sm font-medium text-slate-700"
+            >DA, {{ lengthUnitSymbol }}</span
+          >
+          <input
+            v-model.number="form.da"
             type="number"
             min="0"
             class="w-full rounded-xl border border-slate-200 p-3 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
@@ -113,8 +127,8 @@ const result = computed(() => {
             v-model="form.mainSideKey"
             class="w-full rounded-xl border border-slate-200 bg-white p-3 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
           >
-            <option v-for="sideKey in TRIANGLE_SIDE_KEYS" :key="sideKey" :value="sideKey">
-              {{ t(`triangle.sides.${sideKey}`) }}
+            <option v-for="sideKey in TRAPEZOID_SIDE_KEYS" :key="sideKey" :value="sideKey">
+              {{ t(`trapezoid.sides.${sideKey}`) }}
             </option>
           </select>
         </label>
@@ -149,7 +163,7 @@ const result = computed(() => {
       <GeometryGridPreview v-if="result" :polygon="result.placedPolygon" :grid="result.grid" />
 
       <div v-else class="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
-        {{ t('triangle.invalid') }}
+        {{ t('trapezoid.invalid') }}
       </div>
     </div>
 
@@ -224,7 +238,7 @@ const result = computed(() => {
       </dl>
 
       <p v-else class="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-        {{ t('triangle.invalid') }}
+        {{ t('trapezoid.invalid') }}
       </p>
     </aside>
   </section>

@@ -71,11 +71,13 @@ async function changeLocale(value: AppLocale): Promise<void> {
             {{ t('navigation.triangle') }}
           </NuxtLink>
 
-          <span
-            class="cursor-not-allowed rounded-full border border-dashed border-slate-200 px-4 py-2 text-sm font-medium text-slate-400"
+          <NuxtLink
+            to="/trapezoid"
+            class="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+            active-class="border-blue-500 bg-blue-50 text-blue-700"
           >
-            {{ t('navigation.trapezoid') }} · {{ t('common.soon') }}
-          </span>
+            {{ t('navigation.trapezoid') }}
+          </NuxtLink>
         </nav>
 
         <div class="grid gap-2 sm:grid-cols-3">

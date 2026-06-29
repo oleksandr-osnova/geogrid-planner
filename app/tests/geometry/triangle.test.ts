@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { Point } from '~/shared/geometry/core/point';
 import { Segment } from '~/shared/geometry/core/segment';
+import { calculateTrapezoid } from '~/shared/geometry/calculators/calculate-trapezoid';
+import { calculateTriangle } from '~/shared/geometry/calculators/calculate-triangle';
+import { PolygonGridCalculator } from '~/shared/geometry/grid/polygon-grid-calculator';
+import { Trapezoid } from '~/shared/geometry/shapes/trapezoid';
 import { Triangle } from '~/shared/geometry/shapes/triangle';
 
 const triangleInput = { ab: 3, bc: 4, ca: 5 };
+const trapezoidInput = { ab: 30, bc: 15, cd: 18, da: 16 };
 
 describe('geometry entities', () => {
   it('calculates distance between points', () => {
@@ -39,5 +44,60 @@ describe('geometry entities', () => {
 
     expect(triangle.area).toBeCloseTo(6);
     expect(triangle.perimeter).toBeCloseTo(12);
+  });
+
+  it('places triangle by selected main side', () => {
+    const triangle = Triangle.fromSides(triangleInput);
+    const placedPolygon = triangle.placeBySide('bc');
+
+    expect(placedPolygon.mainSideKey).toBe('bc');
+    expect(placedPolygon.bounds.minY).toBeCloseTo(0);
+  });
+
+  it('builds trapezoid from side lengths', () => {
+    const trapezoid = Trapezoid.fromSides(trapezoidInput);
+
+    expect(trapezoid.sideLengths.ab).toBeCloseTo(30);
+    expect(trapezoid.sideLengths.bc).toBeCloseTo(15);
+    expect(trapezoid.sideLengths.cd).toBeCloseTo(18);
+    expect(trapezoid.sideLengths.da).toBeCloseTo(16);
+    expect(trapezoid.area).toBeGreaterThan(0);
+  });
+
+  it('calculates triangle grid data', () => {
+    const result = calculateTriangle({
+      ...triangleInput,
+      mainSideKey: 'ab',
+      gridStep: 1,
+      minDistanceFromSideIntersection: 0,
+    });
+
+    expect(result.grid.parallelSegments.length).toBeGreaterThan(0);
+    expect(result.grid.perpendicularSegments.length).toBeGreaterThan(0);
+    expect(result.grid.totalLength).toBeGreaterThan(0);
+  });
+
+  it('calculates trapezoid grid data with the same grid calculator', () => {
+    const result = calculateTrapezoid({
+      ...trapezoidInput,
+      mainSideKey: 'ab',
+      gridStep: 5,
+      minDistanceFromSideIntersection: 0,
+    });
+
+    expect(result.grid.parallelSegments.length).toBeGreaterThan(0);
+    expect(result.grid.perpendicularSegments.length).toBeGreaterThan(0);
+    expect(result.grid.totalLength).toBeGreaterThan(0);
+  });
+
+  it('excludes inner intersections near side intersections by distance', () => {
+    const triangle = Triangle.fromSides({ ab: 10, bc: 10, ca: 10 });
+    const placedPolygon = triangle.placeBySide('ab');
+    const grid = new PolygonGridCalculator().calculate(placedPolygon, {
+      step: 2,
+      minDistanceFromSideIntersection: 3,
+    });
+
+    expect(grid.excludedInnerIntersections.length).toBeGreaterThan(0);
   });
 });

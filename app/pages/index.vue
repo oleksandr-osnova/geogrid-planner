@@ -17,7 +17,10 @@ const { t } = useI18n();
     </p>
 
     <div class="mt-8 grid gap-4 md:grid-cols-2">
-      <NuxtLink to="/triangle" class="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition hover:border-blue-300 hover:bg-blue-50">
+      <NuxtLink
+        to="/triangle"
+        class="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition hover:border-blue-300 hover:bg-blue-50"
+      >
         <h2 class="text-lg font-semibold text-slate-950">
           {{ t('navigation.triangle') }}
         </h2>
@@ -27,7 +30,10 @@ const { t } = useI18n();
         </p>
       </NuxtLink>
 
-      <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 opacity-70">
+      <NuxtLink
+        to="/trapezoid"
+        class="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition hover:border-blue-300 hover:bg-blue-50"
+      >
         <h2 class="text-lg font-semibold text-slate-950">
           {{ t('navigation.trapezoid') }}
         </h2>
@@ -35,7 +41,7 @@ const { t } = useI18n();
         <p class="mt-2 text-sm leading-6 text-slate-600">
           {{ t('home.trapezoidDescription') }}
         </p>
-      </div>
+      </NuxtLink>
     </div>
   </section>
 </template>
