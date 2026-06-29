@@ -94,7 +94,7 @@ const result = computed(() => {
         </label>
       </div>
 
-      <TrianglePreview v-if="result" :points="result.resolvedTriangle.points" />
+      <TrianglePreview v-if="result" :triangle="result.triangle" />
 
       <div v-else class="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
         {{ t('triangle.invalid') }}

@@ -1,24 +1,17 @@
-import type { TriangleInput } from '~/shared/geometry/shapes/triangle';
-import { resolveTriangle } from '~/shared/geometry/shapes/triangle';
-import { calculateTriangleArea } from '~/shared/geometry/metrics/triangle-area';
-import { calculatePerimeter } from '~/shared/geometry/metrics/perimeter';
+import { Triangle, type TriangleInput } from '~/shared/geometry/shapes/triangle';
 
 export interface TriangleCalculationResult {
+  triangle: Triangle;
   area: number;
   perimeter: number;
-  resolvedTriangle: ReturnType<typeof resolveTriangle>;
 }
 
-export function calculateTriangle (input: TriangleInput): TriangleCalculationResult {
-  const resolvedTriangle = resolveTriangle(input);
+export function calculateTriangle(input: TriangleInput): TriangleCalculationResult {
+  const triangle = Triangle.fromSides(input);
 
   return {
-    area: calculateTriangleArea(input),
-    perimeter: calculatePerimeter([
-      resolvedTriangle.sides.ab,
-      resolvedTriangle.sides.bc,
-      resolvedTriangle.sides.ca,
-    ]),
-    resolvedTriangle,
+    triangle,
+    area: triangle.area,
+    perimeter: triangle.perimeter,
   };
 }
