@@ -96,7 +96,7 @@ export class Polygon {
       placedPoints = placedPoints.map((point) => new Point(point.x, -point.y));
     }
 
-    return new PlacedPolygon(new Polygon(placedPoints), mainSideKey);
+    return new PlacedPolygon(new Polygon(placedPoints), mainSideKey, segmentIndex);
   }
 
   /**

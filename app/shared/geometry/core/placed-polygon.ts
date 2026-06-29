@@ -12,10 +12,12 @@ import type { Point } from '~/shared/geometry/core/point';
 export class PlacedPolygon {
   public readonly polygon: Polygon;
   public readonly mainSideKey: string;
+  public readonly mainSegmentIndex: number;
 
-  public constructor(polygon: Polygon, mainSideKey: string) {
+  public constructor(polygon: Polygon, mainSideKey: string, mainSegmentIndex: number) {
     this.polygon = polygon;
     this.mainSideKey = mainSideKey;
+    this.mainSegmentIndex = mainSegmentIndex;
   }
 
   public get points(): readonly Point[] {
@@ -24,6 +26,16 @@ export class PlacedPolygon {
 
   public get segments(): readonly Segment[] {
     return this.polygon.segments;
+  }
+
+  public get mainSegment(): Segment {
+    const segment = this.segments[this.mainSegmentIndex];
+
+    if (!segment) {
+      throw new Error('Main segment index is outside of placed polygon segments.');
+    }
+
+    return segment;
   }
 
   public get bounds(): PolygonBounds {
