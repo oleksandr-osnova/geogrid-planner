@@ -28,6 +28,7 @@ describe('polygon grid calculator', () => {
         { x: 0, y: 10 },
       ]),
       'ab',
+      0,
     );
     const grid = new PolygonGridCalculator().calculate(placedPolygon, {
       step: 5,
@@ -52,5 +53,16 @@ describe('polygon grid calculator', () => {
     });
 
     expect(grid.excludedInnerIntersections.length).toBeGreaterThan(0);
+  });
+  it('keeps dense grid calculation from depending on quadratic deduplication', () => {
+    const triangle = Triangle.fromSides({ ab: 300, bc: 260, ca: 220 });
+    const placedPolygon = triangle.placeBySide('ab');
+    const grid = new PolygonGridCalculator().calculate(placedPolygon, {
+      step: 1,
+      minDistanceFromSideIntersection: 0,
+    });
+
+    expect(grid.innerIntersections.length).toBeGreaterThan(10_000);
+    expect(grid.totalLength).toBeGreaterThan(0);
   });
 });

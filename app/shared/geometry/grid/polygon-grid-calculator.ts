@@ -233,12 +233,12 @@ export class PolygonGridCalculator {
     const innerIntersections: InnerGridIntersection[] = [];
     const excludedInnerIntersections: InnerGridIntersection[] = [];
 
-    parallelSegments.forEach((parallelSegment) => {
-      perpendicularSegments.forEach((perpendicularSegment) => {
+    for (const parallelSegment of parallelSegments) {
+      for (const perpendicularSegment of perpendicularSegments) {
         const point = this.getGridSegmentsIntersection(parallelSegment, perpendicularSegment);
 
         if (!point) {
-          return;
+          continue;
         }
 
         const distanceInfo = this.findNearestSideDistanceOnCrossingGridSegments(
@@ -254,12 +254,12 @@ export class PolygonGridCalculator {
         ) {
           excludedInnerIntersections.push(intersection);
 
-          return;
+          continue;
         }
 
         innerIntersections.push(intersection);
-      });
-    });
+      }
+    }
 
     return {
       innerIntersections: this.uniqueInnerIntersections(innerIntersections),
@@ -307,11 +307,11 @@ export class PolygonGridCalculator {
     InnerGridIntersection,
     'nearestSideDistance' | 'nearestParallelSideDistance' | 'nearestPerpendicularSideDistance'
   > {
-    const nearestParallelSideDistance = this.findNearestPositiveDistance(point, [
+    const nearestParallelSideDistance = this.findNearestPositiveGridDistance(point, [
       parallelSegment.segment.start,
       parallelSegment.segment.end,
     ]);
-    const nearestPerpendicularSideDistance = this.findNearestPositiveDistance(point, [
+    const nearestPerpendicularSideDistance = this.findNearestPositiveGridDistance(point, [
       perpendicularSegment.segment.start,
       perpendicularSegment.segment.end,
     ]);
@@ -327,9 +327,9 @@ export class PolygonGridCalculator {
     };
   }
 
-  private findNearestPositiveDistance(point: Point, targets: readonly Point[]): number | null {
+  private findNearestPositiveGridDistance(point: Point, targets: readonly Point[]): number | null {
     const distances = targets
-      .map((target) => point.distanceTo(target))
+      .map((target) => Math.abs(point.x - target.x) + Math.abs(point.y - target.y))
       .filter((distance) => distance > EPSILON);
 
     return this.minNullable(distances);
@@ -348,23 +348,45 @@ export class PolygonGridCalculator {
   private uniqueSideIntersections(
     intersections: readonly SideGridIntersection[],
   ): SideGridIntersection[] {
-    return intersections.filter((intersection, index, list) => {
-      return list.findIndex((item) => this.areSamePoints(item.point, intersection.point)) === index;
-    });
+    return this.uniqueItemsByPoint(intersections);
   }
 
   private uniqueInnerIntersections(
     intersections: readonly InnerGridIntersection[],
   ): InnerGridIntersection[] {
-    return intersections.filter((intersection, index, list) => {
-      return list.findIndex((item) => this.areSamePoints(item.point, intersection.point)) === index;
-    });
+    return this.uniqueItemsByPoint(intersections);
   }
 
   private uniquePoints(points: readonly Point[]): Point[] {
-    return points.filter((point, index, list) => {
-      return list.findIndex((item) => this.areSamePoints(item, point)) === index;
+    const uniquePoints = new Map<string, Point>();
+
+    points.forEach((point) => {
+      uniquePoints.set(this.getPointKey(point), point);
     });
+
+    return [...uniquePoints.values()];
+  }
+
+  /**
+   * Deduplicates points in linear time.
+   *
+   * Text explanation: previous implementation used findIndex for every point, which meant that
+   * 28 000 intersections could trigger hundreds of millions of point comparisons. A Map turns the
+   * rounded coordinates into a stable key, so each point is checked once and large grids do not slow
+   * down only because we are removing duplicates.
+   */
+  private uniqueItemsByPoint<T extends { point: Point }>(items: readonly T[]): T[] {
+    const uniqueItems = new Map<string, T>();
+
+    items.forEach((item) => {
+      uniqueItems.set(this.getPointKey(item.point), item);
+    });
+
+    return [...uniqueItems.values()];
+  }
+
+  private getPointKey(point: Point): string {
+    return `${Math.round(point.x / EPSILON)}:${Math.round(point.y / EPSILON)}`;
   }
 
   /**
@@ -393,9 +415,5 @@ export class PolygonGridCalculator {
 
   private areClose(left: number, right: number): boolean {
     return Math.abs(left - right) <= EPSILON;
-  }
-
-  private areSamePoints(left: Point, right: Point): boolean {
-    return left.distanceTo(right) <= EPSILON;
   }
 }
