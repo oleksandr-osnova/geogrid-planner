@@ -2,7 +2,13 @@
 import { computed } from 'vue';
 import type { Point } from '~/shared/geometry/core/point';
 import type { PlacedPolygon } from '~/shared/geometry/core/placed-polygon';
+import type { GridSegment } from '~/shared/geometry/grid/grid-segment';
 import type { PolygonGridCalculationResult } from '~/shared/geometry/grid/polygon-grid-calculator';
+
+const MAX_FULL_GRID_SEGMENTS = 500;
+const MAX_FULL_POINTS = 2_000;
+const MAX_OUTLINE_GRID_SEGMENTS = 80;
+const MAX_OUTLINE_POINTS = 10_000;
 
 const props = defineProps<{
   polygon: PlacedPolygon;
@@ -34,6 +40,33 @@ const gridStrokeWidth = computed(() => 1.5);
 const cornerLabelFontSize = computed(() => previewSize.value * 0.04);
 const cornerLabelOffset = computed(() => previewSize.value * 0.05);
 
+const allGridSegments = computed(() => [
+  ...props.grid.parallelSegments,
+  ...props.grid.perpendicularSegments,
+]);
+const totalRenderedPointCandidates = computed(() => {
+  return (
+    props.grid.sideIntersections.length +
+    props.grid.innerIntersections.length +
+    props.grid.excludedInnerIntersections.length
+  );
+});
+const isOutlinePreview = computed(() => {
+  return (
+    allGridSegments.value.length > MAX_FULL_GRID_SEGMENTS * 3 ||
+    totalRenderedPointCandidates.value > MAX_OUTLINE_POINTS
+  );
+});
+const isPointRenderingEnabled = computed(() => {
+  return totalRenderedPointCandidates.value <= MAX_FULL_POINTS;
+});
+const maxRenderedGridSegments = computed(() => {
+  return isOutlinePreview.value ? MAX_OUTLINE_GRID_SEGMENTS : MAX_FULL_GRID_SEGMENTS;
+});
+const gridRenderingStep = computed(() => {
+  return Math.max(1, Math.ceil(allGridSegments.value.length / maxRenderedGridSegments.value));
+});
+
 const viewBox = computed(() => {
   const width = maxX.value - minX.value + previewPadding.value * 2;
   const height = maxY.value - minY.value + previewPadding.value * 2;
@@ -45,10 +78,25 @@ const polygonPoints = computed(() => {
   return points.value.map((point) => `${point.x},${-point.y}`).join(' ');
 });
 
-const gridSegments = computed(() => [
-  ...props.grid.parallelSegments,
-  ...props.grid.perpendicularSegments,
-]);
+const gridSegments = computed<GridSegment[]>(() => {
+  if (gridRenderingStep.value === 1) {
+    return allGridSegments.value;
+  }
+
+  return allGridSegments.value.filter((_, index) => index % gridRenderingStep.value === 0);
+});
+
+const sideIntersections = computed(() => {
+  return isPointRenderingEnabled.value ? props.grid.sideIntersections : [];
+});
+
+const innerIntersections = computed(() => {
+  return isPointRenderingEnabled.value ? props.grid.innerIntersections : [];
+});
+
+const excludedInnerIntersections = computed(() => {
+  return isPointRenderingEnabled.value ? props.grid.excludedInnerIntersections : [];
+});
 
 const cornerPointLabels = ['A', 'B', 'C', 'D', 'E', 'F'];
 
@@ -130,7 +178,7 @@ const mainSegment = computed(() => props.polygon.mainSegment);
     />
 
     <circle
-      v-for="(intersection, index) in props.grid.sideIntersections"
+      v-for="(intersection, index) in sideIntersections"
       :key="`side-${index}`"
       :cx="intersection.point.x"
       :cy="-intersection.point.y"
@@ -139,7 +187,7 @@ const mainSegment = computed(() => props.polygon.mainSegment);
     />
 
     <circle
-      v-for="(intersection, index) in props.grid.innerIntersections"
+      v-for="(intersection, index) in innerIntersections"
       :key="`inner-${index}`"
       :cx="intersection.point.x"
       :cy="-intersection.point.y"
@@ -148,7 +196,7 @@ const mainSegment = computed(() => props.polygon.mainSegment);
     />
 
     <circle
-      v-for="(intersection, index) in props.grid.excludedInnerIntersections"
+      v-for="(intersection, index) in excludedInnerIntersections"
       :key="`excluded-${index}`"
       :cx="intersection.point.x"
       :cy="-intersection.point.y"

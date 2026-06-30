@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import GeometryGridPreviewSvg from '~/components/preview/GeometryGridPreviewSvg.vue';
 import type { PlacedPolygon } from '~/shared/geometry/core/placed-polygon';
 import type { PolygonGridCalculationResult } from '~/shared/geometry/grid/polygon-grid-calculator';
+
+const MAX_FULL_GRID_SEGMENTS = 500;
+const MAX_FULL_POINTS = 2_000;
 
 const props = defineProps<{
   polygon: PlacedPolygon;
@@ -12,6 +15,22 @@ const props = defineProps<{
 const { t } = useI18n();
 const isFullscreenPreviewOpen = ref(false);
 let previousBodyOverflow: string | null = null;
+
+const totalGridSegments = computed(() => {
+  return props.grid.parallelSegments.length + props.grid.perpendicularSegments.length;
+});
+const totalPointCandidates = computed(() => {
+  return (
+    props.grid.sideIntersections.length +
+    props.grid.innerIntersections.length +
+    props.grid.excludedInnerIntersections.length
+  );
+});
+const isPreviewSimplified = computed(() => {
+  return (
+    totalGridSegments.value > MAX_FULL_GRID_SEGMENTS || totalPointCandidates.value > MAX_FULL_POINTS
+  );
+});
 
 function openFullscreenPreview(): void {
   isFullscreenPreviewOpen.value = true;
@@ -60,7 +79,17 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="mt-6 overflow-hidden rounded border bg-white">
-    <div class="flex justify-end border-b border-slate-200 bg-slate-50 px-3 py-2">
+    <div
+      class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2"
+    >
+      <p v-if="isPreviewSimplified" class="text-xs leading-5 text-amber-700 sm:text-sm">
+        {{ t('preview.simplified') }}
+      </p>
+
+      <span v-else class="text-xs leading-5 text-slate-500 sm:text-sm">
+        {{ t('preview.full') }}
+      </span>
+
       <button
         type="button"
         class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-blue-300 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-100"
@@ -84,11 +113,17 @@ onBeforeUnmount(() => {
     >
       <div class="flex min-h-0 w-full flex-col rounded-2xl bg-white shadow-2xl">
         <div
-          class="flex items-center justify-between gap-3 border-b border-slate-200 px-3 py-2 sm:px-4"
+          class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-3 py-2 sm:px-4"
         >
-          <p class="text-sm font-semibold text-slate-800 sm:text-base">
-            {{ t('preview.fullscreenTitle') }}
-          </p>
+          <div>
+            <p class="text-sm font-semibold text-slate-800 sm:text-base">
+              {{ t('preview.fullscreenTitle') }}
+            </p>
+
+            <p v-if="isPreviewSimplified" class="mt-1 text-xs text-amber-700">
+              {{ t('preview.simplified') }}
+            </p>
+          </div>
 
           <button
             type="button"

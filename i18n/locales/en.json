@@ -52,7 +52,11 @@
       "mm": "mm",
       "cm": "cm",
       "m": "m"
-    }
+    },
+    "title": "Settings",
+    "description": "Language, units, and precision are moved out because they usually change less often than shape parameters.",
+    "open": "Settings",
+    "close": "Close"
   },
   "triangle": {
     "description": "Calculate a triangle by three sides with main side selection, grid building, and filtering intersections near sides.",
@@ -83,6 +87,8 @@
   "preview": {
     "openFullscreen": "Fullscreen",
     "closeFullscreen": "Close",
-    "fullscreenTitle": "Full drawing preview"
+    "fullscreenTitle": "Full drawing preview",
+    "full": "Full preview",
+    "simplified": "Preview is simplified: all data is included in calculations, but not every line or point is rendered for performance."
   }
 }
